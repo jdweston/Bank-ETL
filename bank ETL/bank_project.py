@@ -12,6 +12,7 @@ table_name = 'Largest_banks'
 csv_path = 'exchange_rate.csv'
 output_path = './Largest_banks_data.csv'
 log_file = 'code_log.txt'
+conn = sqlite3.connect(db_name)
 
 def log_progress(message):
     timestamp_format = '%Y-%h-%d-%H:-%M:-%S'
@@ -21,6 +22,8 @@ def log_progress(message):
         f.write(timestamp + ' : ' + message + '\n')
 
 log_progress('Preliminaries complete. Initiating ETL process')
+
+
 
 def extract(url, table_attribs):
     html_page = requests.get(url).text
@@ -43,6 +46,8 @@ df = extract(url,table_attribs)
 
 log_progress('Data extraction complete. Initiating Transformation process')
 
+
+
 def transform(df, csv_path):
     exch_df = pd.read_csv(csv_path)
     exchange_rates = exch_df.set_index('Currency').to_dict()['Rate']
@@ -56,13 +61,16 @@ df = transform(df, csv_path)
 print(df)
 log_progress('Data transformation complete. Initiating Loading process')
 
+
+
 def load_to_csv(df, output_path):
     df.to_csv(output_path, index = False)
 
 load_to_csv(df, output_path)
 log_progress('Data saved to CSV file')
 
-conn = sqlite3.connect(db_name)
+
+
 def load_to_db(df, conn, table_name):
     df.to_sql(table_name, conn, if_exists='replace', index=False)
     conn.close()
